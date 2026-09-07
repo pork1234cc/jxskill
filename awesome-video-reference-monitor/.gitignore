@@ -1,0 +1,14 @@
+.env
+.venv/
+.cache/
+.tmp/
+.ruff_cache/
+1-对标账号/
+2-素材库/
+3-对标案例/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.coverage
+htmlcov/
+scripts/wechat-decrypt/node_modules/

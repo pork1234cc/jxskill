@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <title>视频号 ISAAC64 本地密钥流</title>
+  </head>
+  <body>
+    <script>
+      // WASM 资产来自 Evil0ctal/WeChat-Channels-Video-File-Decryption（MIT）。
+      window.VTS_WASM_URL = "/vendor/wasm_video_decode.wasm";
+      window.MAX_HEAP_SIZE = 33554432;
+
+      const KEYSTREAM_SIZE = 131072;
+      let keystreamData = null;
+
+      window.wasm_isaac_generate = (pointer, size) => {
+        const wasmBytes = new Uint8Array(Module.HEAPU8.buffer, pointer, size);
+        keystreamData = wasmBytes.slice().reverse();
+      };
+
+      function waitForWasm(timeoutMs = 30000) {
+        const startedAt = Date.now();
+        return new Promise((resolve, reject) => {
+          const poll = () => {
+            if (typeof Module !== "undefined" && Module.WxIsaac64) {
+              resolve();
+              return;
+            }
+            if (Date.now() - startedAt >= timeoutMs) {
+              reject(new Error("WASM 模块加载超时"));
+              return;
+            }
+            setTimeout(poll, 50);
+          };
+          poll();
+        });
+      }
+
+      window.generateKeystream = async (decodeKey) => {
+        await waitForWasm();
+        keystreamData = null;
+        const decryptor = new Module.WxIsaac64(String(decodeKey));
+        try {
+          await decryptor.generate(KEYSTREAM_SIZE);
+        } finally {
+          decryptor.delete();
+        }
+        if (!(keystreamData instanceof Uint8Array) || keystreamData.length !== KEYSTREAM_SIZE) {
+          throw new Error("WASM 密钥流长度无效");
+        }
+        let binary = "";
+        for (let offset = 0; offset < keystreamData.length; offset += 8192) {
+          binary += String.fromCharCode(...keystreamData.subarray(offset, offset + 8192));
+        }
+        return btoa(binary);
+      };
+    </script>
+    <script src="/vendor/wasm_video_decode.js"></script>
+  </body>
+</html>

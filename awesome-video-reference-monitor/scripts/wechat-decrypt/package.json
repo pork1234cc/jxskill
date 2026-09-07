@@ -1,0 +1,16 @@
+{
+  "name": "extract-social-video-transcript-wechat-decrypt",
+  "version": "0.1.0",
+  "private": true,
+  "description": "视频号 ISAAC64 WASM 密钥流本地桥接工具",
+  "type": "module",
+  "scripts": {
+    "keystream": "node bridge.mjs"
+  },
+  "dependencies": {
+    "playwright": "1.62.1"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

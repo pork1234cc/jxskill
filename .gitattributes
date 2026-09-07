@@ -1,0 +1,5 @@
+# 公开源码统一换行，二进制资产原样保存
+* text=auto eol=lf
+*.wasm binary
+# 第三方生成资产保持上游字节，不应用源码空白检查
+awesome-video-reference-monitor/scripts/wechat-decrypt/vendor/** -text -whitespace

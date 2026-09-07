@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "articlemonitor"
+version = "0.2.0"
+description = "抖音与微信视频号对标账号登记、素材监控和手动文案提取工具"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["ruff>=0.8"]
+
+[project.scripts]
+article-monitor = "article_monitor.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "scripts"}
+
+[tool.setuptools.packages.find]
+where = ["scripts"]

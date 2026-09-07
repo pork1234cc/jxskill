@@ -1,0 +1,27 @@
+# 本地配置、运行环境与测试缓存
+.env
+.env.*
+!.env.example
+.venv/
+node_modules/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.cache/
+.tmp/
+.ruff_cache/
+.pytest_cache/
+
+# 业务数据与采集产物
+projects/
+**/1-对标账号/
+**/2-素材库/
+**/3-对标案例/
+output/
+
+# 本机迁移记录、内部开发备忘录与设计材料
+CLAUDE_NOTES.md
+CLAUDE.md
+MIGRATION.md
+**/docs/DESIGN.md
+/awesome-video-reference-monitor/小红书笔记-SKILL介绍.md

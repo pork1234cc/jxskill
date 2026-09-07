@@ -1,0 +1,4 @@
+interface:
+  display_name: "小红书采集"
+  short_description: "即时按关键词采集，或执行飞书未采集任务队列"
+  default_prompt: "使用 $xiaohongshu-collector 按指定关键词即时采集，或在我说‘开始笔记采集’时依次执行飞书任务表中的全部未采集任务。"
