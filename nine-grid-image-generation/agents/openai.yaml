@@ -1,0 +1,4 @@
+interface:
+  display_name: "九宫格图片生成"
+  short_description: "将主题或九格分镜生成统一风格总图，并自动检测结构、裁切九张单图"
+  default_prompt: "使用 $nine-grid-image-generation 把我的主题规划成统一风格的九宫格，生成总图后检测结构并裁切为九张单图。"

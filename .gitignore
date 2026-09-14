@@ -18,6 +18,7 @@ projects/
 **/2-素材库/
 **/3-对标案例/
 output/
+nine-grid-output/
 
 # 本机迁移记录、内部开发备忘录与设计材料
 CLAUDE_NOTES.md

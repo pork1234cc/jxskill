@@ -1,6 +1,6 @@
 # jxskill
 
-两个可独立安装的内容采集 Skill：小红书关键词采集，以及抖音、微信视频号对标账号监控。克隆整个仓库时，可共用一份 `.env`、Python 虚拟环境和浏览器缓存。
+三个可独立安装的 Skill：小红书关键词采集，抖音、微信视频号对标账号监控，以及九宫格图片生成与自动裁切。克隆整个仓库时，可共用一份 `.env` 和 Python 虚拟环境；采集类 Skill 还可共用浏览器缓存。
 
 ## 功能
 
@@ -8,8 +8,9 @@
 | --- | --- | --- |
 | [xiaohongshu-collector](xiaohongshu-collector/SKILL.md) | 按关键词采集小红书笔记、下载图片或视频，执行飞书待采集任务 | 工作目录的 `projects/03小红书/01小红书素材/` |
 | [awesome-video-reference-monitor](awesome-video-reference-monitor/SKILL.md) | 登记抖音/视频号账号、筛选近期作品、提取单条视频文案，可同步飞书 | Skill 内的 `1-对标账号/`、`2-素材库/`、`3-对标案例/` |
+| [nine-grid-image-generation](nine-grid-image-generation/SKILL.md) | 把主题或九格分镜生成统一风格总图，检测结构后裁切为九张单图 | 工作目录的 `nine-grid-output/` |
 
-两个 Skill 各自包含运行源码、配置模板和参考资料，互不导入业务代码。小红书评论正文采集、文案改写、自动发布和后台定时任务不在当前范围内。
+三个 Skill 各自包含运行源码、配置模板和参考资料，互不导入业务代码。小红书评论正文采集、文案改写、自动发布和后台定时任务不在当前范围内。
 
 ## 通过 NPX 安装 Skill
 
@@ -22,6 +23,7 @@ npx skills add pork1234cc/jxskill
 ```powershell
 npx skills add pork1234cc/jxskill --skill xiaohongshu-collector
 npx skills add pork1234cc/jxskill --skill awesome-video-reference-monitor
+npx skills add pork1234cc/jxskill --skill nine-grid-image-generation
 ```
 
 安装后重新启动 Agent。NPX 安装 Skill 文件不会自动安装 Python、Node.js 或 FFmpeg，也不会替用户填写密钥。
@@ -29,6 +31,8 @@ npx skills add pork1234cc/jxskill --skill awesome-video-reference-monitor
 单独使用小红书 Skill 时，在保存配置和采集结果的工作目录执行 `python -m venv .venv`，再按它的 [配置说明](xiaohongshu-collector/references/configuration.md) 填写凭据；Python 运行代码仅使用标准库。
 
 单独使用监控 Skill 时，在安装后的 Skill 目录执行 `scripts/bootstrap.ps1`，按 [配置说明](awesome-video-reference-monitor/references/configuration.md) 完成初始化。
+
+单独使用九宫格 Skill 时，在安装后的 Skill 目录执行 `python -m pip install -r requirements.txt`，参考 `assets/.env.example` 设置 `APII_API_KEY`。脚本不会自动加载 `.env`。
 
 ## 克隆仓库，共用运行环境
 
@@ -44,6 +48,7 @@ Copy-Item -LiteralPath .env.example -Destination .env
 
 ```powershell
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\awesome-video-reference-monitor\scripts\bootstrap.ps1 -PythonCommand python
+.\.venv\Scripts\python.exe -m pip install -r .\nine-grid-image-generation\requirements.txt
 ```
 
 初始化会创建根目录 `.venv`，安装本地监控 Python 包、ruff、锁定版本的 Playwright 和 Chromium。已有 `.env` 不覆盖，初始化不调用业务 API。
@@ -55,6 +60,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\awesome-video-referenc
 | 用途 | 参数 |
 | --- | --- |
 | 公共 TikHub 凭据 | `TIKHUB_API_KEY` |
+| API 易生图凭据 | `APII_API_KEY` |
 | Qwen ASR | `DASHSCOPE_API_KEY`、`DASHSCOPE_ASR_WORKSPACE_ID`，其他 ASR 参数见模板 |
 | 飞书应用 | `FEISHU_APP_ID`、`FEISHU_APP_SECRET` |
 | 小红书飞书任务和详情表 | `NOTE_TOKEN`、`NOTE_WORK`、`NOTE_CONTENT`；`NOTE_COMMENT` 仅预留 |
@@ -63,7 +69,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\awesome-video-referenc
 
 监控默认使用本地模式。小红书即时采集在飞书配置不完整时仅保存本地结果；执行飞书任务队列需要完整配置。两个 Skill 的目标表分别维护，可以共用飞书应用凭据。
 
-真实采集可能产生 TikHub、Qwen 调用费用。真实 `.env`、运行环境、缓存和业务数据均被 Git 忽略，不要把凭据填入公开模板。
+真实采集可能产生 TikHub、Qwen 调用费用，正式九宫格生图会产生 API 易调用费用。真实 `.env`、运行环境、缓存、业务数据和生图结果均被 Git 忽略，不要把凭据填入公开模板。
 
 ## 运行
 
@@ -72,6 +78,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\awesome-video-referenc
 ```powershell
 .\.venv\Scripts\python.exe -X utf8 -m article_monitor --help
 .\.venv\Scripts\python.exe -X utf8 .\xiaohongshu-collector\scripts\run_collector.py --help
+.\.venv\Scripts\python.exe -X utf8 .\nine-grid-image-generation\scripts\generate_grid.py --help
 ```
 
 实际业务命令：
@@ -95,13 +102,19 @@ jxskill/
 │   ├── agents/、assets/、references/
 │   ├── scripts/
 │   └── tests/
-└── awesome-video-reference-monitor/
-    ├── SKILL.md
+├── awesome-video-reference-monitor/
+│   ├── SKILL.md
+│   ├── agents/、assets/、references/
+│   ├── scripts/article_monitor/
+│   ├── scripts/wechat-decrypt/
+│   ├── tests/
+│   └── pyproject.toml
+└── nine-grid-image-generation/
+    ├── SKILL.md、README.md、requirements.txt
     ├── agents/、assets/、references/
-    ├── scripts/article_monitor/
-    ├── scripts/wechat-decrypt/
+    ├── scripts/
     ├── tests/
-    └── pyproject.toml
+    └── evals/
 ```
 
 ## 开发与验证
@@ -109,9 +122,11 @@ jxskill/
 ```powershell
 .\.venv\Scripts\python.exe -m unittest discover -s awesome-video-reference-monitor/tests -v
 .\.venv\Scripts\python.exe -m unittest discover -s xiaohongshu-collector/tests -v
+.\.venv\Scripts\python.exe -m unittest discover -s nine-grid-image-generation/tests -v
 .\.venv\Scripts\ruff.exe check awesome-video-reference-monitor/scripts awesome-video-reference-monitor/tests
+.\.venv\Scripts\ruff.exe check nine-grid-image-generation/scripts nine-grid-image-generation/tests
 ```
 
-当前监控有 117 项测试，小红书有 68 项测试。监控中的真实本地 Chromium/WASM 向量测试默认跳过；准备好浏览器后，可设置 `RUN_WECHAT_WASM_TEST=1` 和绝对路径的 `PLAYWRIGHT_BROWSERS_PATH` 再运行。
+当前监控有 117 项测试，小红书有 68 项测试，九宫格有 15 项测试。监控中的真实本地 Chromium/WASM 向量测试默认跳过；准备好浏览器后，可设置 `RUN_WECHAT_WASM_TEST=1` 和绝对路径的 `PLAYWRIGHT_BROWSERS_PATH` 再运行。
 
 第三方 API 密钥和飞书权限需要使用者自行配置与验收。监控代码许可证见其 [LICENSE](awesome-video-reference-monitor/LICENSE)，第三方解密资产的许可证随 `vendor/` 保留。
