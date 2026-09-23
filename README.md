@@ -1,6 +1,6 @@
 # jxskill
 
-三个可独立安装的 Skill：小红书关键词采集，抖音、微信视频号对标账号监控，以及九宫格图片生成与自动裁切。克隆整个仓库时，可共用一份 `.env` 和 Python 虚拟环境；采集类 Skill 还可共用浏览器缓存。
+四个可独立安装的 Skill：小红书关键词采集，抖音、微信视频号对标账号监控，九宫格图片生成与自动裁切，以及 AI 固定出口 Clash 扩展脚本生成。克隆整个仓库时，需要运行代码的 Skill 可共用一份 `.env` 和 Python 虚拟环境；采集类 Skill 还可共用浏览器缓存。
 
 ## 功能
 
@@ -9,8 +9,9 @@
 | [xiaohongshu-collector](xiaohongshu-collector/SKILL.md) | 按关键词采集小红书笔记、下载图片或视频，执行飞书待采集任务 | 工作目录的 `projects/03小红书/01小红书素材/` |
 | [awesome-video-reference-monitor](awesome-video-reference-monitor/SKILL.md) | 登记抖音/视频号账号、筛选近期作品、提取单条视频文案，可同步飞书 | Skill 内的 `1-对标账号/`、`2-素材库/`、`3-对标案例/` |
 | [nine-grid-image-generation](nine-grid-image-generation/SKILL.md) | 把主题或九格分镜生成统一风格总图，检测结构后裁切为九张单图 | 工作目录的 `nine-grid-output/` |
+| [ai-fixed-proxy](ai-fixed-proxy/SKILL.md) | 根据 VPS Shadowsocks 或静态 SOCKS5 参数输出 Clash Verge Rev 扩展脚本，指定 AI 域名走固定出口 | 明确指定时生成 Skill 根目录的 `extension.js` |
 
-三个 Skill 各自包含运行源码、配置模板和参考资料，互不导入业务代码。小红书评论正文采集、文案改写、自动发布和后台定时任务不在当前范围内。
+四个 Skill 的运行资源均在各自目录内，互不导入业务代码。小红书评论正文采集、文案改写、自动发布和后台定时任务不在当前范围内。
 
 ## 通过 NPX 安装 Skill
 
@@ -24,6 +25,7 @@ npx skills add pork1234cc/jxskill
 npx skills add pork1234cc/jxskill --skill xiaohongshu-collector
 npx skills add pork1234cc/jxskill --skill awesome-video-reference-monitor
 npx skills add pork1234cc/jxskill --skill nine-grid-image-generation
+npx skills add pork1234cc/jxskill --skill ai-fixed-proxy
 ```
 
 安装后重新启动 Agent。NPX 安装 Skill 文件不会自动安装 Python、Node.js 或 FFmpeg，也不会替用户填写密钥。
@@ -33,6 +35,8 @@ npx skills add pork1234cc/jxskill --skill nine-grid-image-generation
 单独使用监控 Skill 时，在安装后的 Skill 目录执行 `scripts/bootstrap.ps1`，按 [配置说明](awesome-video-reference-monitor/references/configuration.md) 完成初始化。
 
 单独使用九宫格 Skill 时，在安装后的 Skill 目录执行 `python -m pip install -r requirements.txt`，参考 `assets/.env.example` 设置 `APII_API_KEY`。脚本不会自动加载 `.env`。
+
+单独使用 AI 固定出口 Skill 时，向 Agent 提供已部署的 VPS Shadowsocks 参数，或静态 SOCKS5 的服务器、端口与认证参数。明确要求保存时，Skill 在根目录生成填好参数的 `extension.js` 供直接复制；该文件包含凭据，已被 Git 忽略。不安装服务器软件，也不修改本机 Clash 配置。仅安装和使用此 Skill 不需要 Python 依赖。
 
 ## 克隆仓库，共用运行环境
 
@@ -109,12 +113,16 @@ jxskill/
 │   ├── scripts/wechat-decrypt/
 │   ├── tests/
 │   └── pyproject.toml
-└── nine-grid-image-generation/
-    ├── SKILL.md、README.md、requirements.txt
-    ├── agents/、assets/、references/
-    ├── scripts/
-    ├── tests/
-    └── evals/
+├── nine-grid-image-generation/
+│   ├── SKILL.md、README.md、requirements.txt
+│   ├── agents/、assets/、references/
+│   ├── scripts/
+│   ├── tests/
+│   └── evals/
+└── ai-fixed-proxy/
+    ├── SKILL.md
+    ├── assets/extension-ss.js、extension-socks5.js
+    └── tests/extension.test.cjs
 ```
 
 ## 开发与验证
@@ -125,6 +133,7 @@ jxskill/
 .\.venv\Scripts\python.exe -m unittest discover -s nine-grid-image-generation/tests -v
 .\.venv\Scripts\ruff.exe check awesome-video-reference-monitor/scripts awesome-video-reference-monitor/tests
 .\.venv\Scripts\ruff.exe check nine-grid-image-generation/scripts nine-grid-image-generation/tests
+node --test ai-fixed-proxy/tests/extension.test.cjs
 ```
 
 当前监控有 117 项测试，小红书有 68 项测试，九宫格有 15 项测试。监控中的真实本地 Chromium/WASM 向量测试默认跳过；准备好浏览器后，可设置 `RUN_WECHAT_WASM_TEST=1` 和绝对路径的 `PLAYWRIGHT_BROWSERS_PATH` 再运行。

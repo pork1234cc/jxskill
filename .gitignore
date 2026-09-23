@@ -12,6 +12,10 @@ __pycache__/
 .ruff_cache/
 .pytest_cache/
 
+# 本地生成的代理脚本及其凭据来源
+/ai-fixed-proxy/extension.js
+/sk5.md
+
 # 业务数据与采集产物
 projects/
 **/1-对标账号/
